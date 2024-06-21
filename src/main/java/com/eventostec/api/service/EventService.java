@@ -1,6 +1,5 @@
 package com.eventostec.api.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.Event;
 import com.eventostec.api.domain.event.EventDetailsDTO;
@@ -43,10 +42,10 @@ public class EventService {
     @Autowired
     private EventRepository repository;
 
-    public Event createEvent(EventRequestDTO data){
+    public Event createEvent(EventRequestDTO data) {
         String imgUrl = null;
 
-        if(data.image() != null){
+        if (data.image() != null) {
             imgUrl = this.uploadImg(data.image());
         }
 
@@ -60,14 +59,14 @@ public class EventService {
 
         repository.save(newEvent);
 
-        if(!data.remote()) {
+        if (!data.remote()) {
             this.addressService.createAddress(data, newEvent);
         }
 
         return newEvent;
     }
 
-    public List<EventResponseDTO> getUpcomingEvents(int page, int size){
+    public List<EventResponseDTO> getUpcomingEvents(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Event> eventsPage = this.repository.findUpcomingEvents(new Date(), pageable);
         return eventsPage.map(event -> new EventResponseDTO(
@@ -109,7 +108,7 @@ public class EventService {
                 couponDTOs);
     }
 
-    public List<EventResponseDTO> getFilteredEvents(int page, int size, String title, String city, String uf, Date startDate, Date endDate){
+    public List<EventResponseDTO> getFilteredEvents(int page, int size, String title, String city, String uf, Date startDate, Date endDate) {
         title = (title != null) ? title : "";
         city = (city != null) ? city : "";
         uf = (uf != null) ? uf : "";
