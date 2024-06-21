@@ -14,9 +14,9 @@ public class AWSConfig {
 
     @Value("${aws.region}")
     private String awsRegion;
-    @Value("${aws.accessKey}")
+    @Value("${aws.accessKey:}")
     private String accessKeyId;
-    @Value("${aws.secretKey}")
+    @Value("${aws.secretKey:}")
     private String secretAccessKey;
 
     @Bean
