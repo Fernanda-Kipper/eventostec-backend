@@ -10,7 +10,7 @@ public record EventDetailsDTO(
         String description,
         Date date,
         String city,
-        String uf,
+        String state,
         String imgUrl,
         String eventUrl,
         List<CouponDTO> coupons) {
@@ -18,7 +18,7 @@ public record EventDetailsDTO(
     public record CouponDTO(
             String code,
             Integer discount,
-            Date validUntil) {
+            Date valid) {
     }
 }
 
