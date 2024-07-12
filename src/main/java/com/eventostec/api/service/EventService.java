@@ -1,6 +1,5 @@
 package com.eventostec.api.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.*;
@@ -18,9 +17,6 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.ByteBuffer;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
