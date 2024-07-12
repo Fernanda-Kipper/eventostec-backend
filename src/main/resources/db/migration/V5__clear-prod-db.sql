@@ -1,0 +1,3 @@
+DELETE FROM event;
+DELETE FROM coupon;
+DELETE FROM address;
