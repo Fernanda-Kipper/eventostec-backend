@@ -1,10 +1,9 @@
 package com.eventostec.api.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.coupon.Coupon;
-import com.eventostec.api.domain.event.Event;
-import com.eventostec.api.domain.event.EventDetailsDTO;
-import com.eventostec.api.domain.event.EventRequestDTO;
-import com.eventostec.api.domain.event.EventResponseDTO;
+import com.eventostec.api.domain.event.*;
 import com.eventostec.api.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +18,10 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.ByteBuffer;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,14 +68,14 @@ public class EventService {
 
     public List<EventResponseDTO> getUpcomingEvents(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Event> eventsPage = this.repository.findUpcomingEvents(new Date(), pageable);
+        Page<EventAddressProjection> eventsPage = this.repository.findUpcomingEvents(new Date(), pageable);
         return eventsPage.map(event -> new EventResponseDTO(
                         event.getId(),
                         event.getTitle(),
                         event.getDescription(),
                         event.getDate(),
-                        event.getAddress() != null ? event.getAddress().getCity() : "",
-                        event.getAddress() != null ? event.getAddress().getUf() : "",
+                        event.getCity() != null ? event.getCity() : "",
+                        event.getUf() != null ? event.getUf() : "",
                         event.getRemote(),
                         event.getEventUrl(),
                         event.getImgUrl())
@@ -86,6 +86,8 @@ public class EventService {
     public EventDetailsDTO getEventDetails(UUID eventId) {
         Event event = repository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        Optional<Address> address = addressService.findByEventId(eventId);
 
         List<Coupon> coupons = couponService.consultCoupons(eventId, new Date());
 
@@ -101,8 +103,8 @@ public class EventService {
                 event.getTitle(),
                 event.getDescription(),
                 event.getDate(),
-                event.getAddress() != null ? event.getAddress().getCity() : "",
-                event.getAddress() != null ? event.getAddress().getUf() : "",
+                address.isPresent() ? address.get().getCity() : "",
+                address.isPresent() ? address.get().getUf() : "",
                 event.getImgUrl(),
                 event.getEventUrl(),
                 couponDTOs);
@@ -111,14 +113,14 @@ public class EventService {
     public List<EventResponseDTO> searchEvents(String title){
         title = (title != null) ? title : "";
 
-        List<Event> eventsList = this.repository.findEventsByTitle(title);
+        List<EventAddressProjection> eventsList = this.repository.findEventsByTitle(title);
         return eventsList.stream().map(event -> new EventResponseDTO(
                         event.getId(),
                         event.getTitle(),
                         event.getDescription(),
                         event.getDate(),
-                        event.getAddress() != null ? event.getAddress().getCity() : "",
-                        event.getAddress() != null ? event.getAddress().getUf() : "",
+                        event.getCity() != null ? event.getCity() : "",
+                        event.getUf() != null ? event.getUf() : "",
                         event.getRemote(),
                         event.getEventUrl(),
                         event.getImgUrl())
@@ -134,14 +136,14 @@ public class EventService {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Event> eventsPage = this.repository.findFilteredEvents(city, uf, startDate, endDate, pageable);
+        Page<EventAddressProjection> eventsPage = this.repository.findFilteredEvents(city, uf, startDate, endDate, pageable);
         return eventsPage.map(event -> new EventResponseDTO(
                         event.getId(),
                         event.getTitle(),
                         event.getDescription(),
                         event.getDate(),
-                        event.getAddress() != null ? event.getAddress().getCity() : "",
-                        event.getAddress() != null ? event.getAddress().getUf() : "",
+                        event.getCity() != null ? event.getCity() : "",
+                        event.getUf() != null ? event.getUf() : "",
                         event.getRemote(),
                         event.getEventUrl(),
                         event.getImgUrl())

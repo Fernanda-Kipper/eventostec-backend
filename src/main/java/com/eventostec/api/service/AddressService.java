@@ -7,6 +7,7 @@ import com.eventostec.api.repositories.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -22,6 +23,10 @@ public class AddressService {
         address.setEvent(event);
 
         return addressRepository.save(address);
+    }
+
+    public Optional<Address> findByEventId(UUID eventId) {
+        return addressRepository.findByEventId(eventId);
     }
 }
 
