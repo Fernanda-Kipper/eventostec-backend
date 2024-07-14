@@ -65,4 +65,10 @@ public class EventController {
         List<EventResponseDTO> events = eventService.searchEvents(title);
         return ResponseEntity.ok(events);
     }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> deleteEvent(@PathVariable UUID eventId, @RequestBody String adminKey) {
+        eventService.deleteEvent(eventId, adminKey);
+        return ResponseEntity.noContent().build();
+    }
 }

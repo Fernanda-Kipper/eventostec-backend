@@ -26,6 +26,9 @@ public class EventService {
     @Value("${aws.bucket.name}")
     private String bucketName;
 
+    @Value("${admin.key}")
+    private String adminKey;
+
     @Autowired
     private S3Client s3Client;
 
@@ -104,6 +107,17 @@ public class EventService {
                 event.getImgUrl(),
                 event.getEventUrl(),
                 couponDTOs);
+    }
+
+    public Void deleteEvent(UUID eventId, String adminKey){
+        if(adminKey == null || !adminKey.equals(this.adminKey)){
+            throw new IllegalArgumentException("Invalid admin key");
+        }
+
+        this.repository.delete(this.repository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found")));
+
+        return null;
     }
 
     public List<EventResponseDTO> searchEvents(String title){
