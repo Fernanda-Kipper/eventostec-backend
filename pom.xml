@@ -15,6 +15,8 @@
 	<description>Backend for eventos tec</description>
 	<properties>
 		<java.version>21</java.version>
+		<mapstruct.version>1.4.2.Final</mapstruct.version>
+		<mapstruct-lombok.version>0.2.0</mapstruct-lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -65,7 +67,11 @@
 			<artifactId>s3</artifactId>
 			<version>2.26.7</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -82,7 +88,21 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

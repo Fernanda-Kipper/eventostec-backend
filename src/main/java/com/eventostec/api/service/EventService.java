@@ -3,6 +3,7 @@ package com.eventostec.api.service;
 import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.*;
+import com.eventostec.api.mappers.EventMapper;
 import com.eventostec.api.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,21 +42,17 @@ public class EventService {
     @Autowired
     private EventRepository repository;
 
+    @Autowired
+    private EventMapper mapper;
+
     public Event createEvent(EventRequestDTO data) {
+
         String imgUrl = null;
 
         if (data.image() != null) {
             imgUrl = this.uploadImg(data.image());
         }
-
-        Event newEvent = new Event();
-        newEvent.setTitle(data.title());
-        newEvent.setDescription(data.description());
-        newEvent.setEventUrl(data.eventUrl());
-        newEvent.setDate(new Date(data.date()));
-        newEvent.setImgUrl(imgUrl);
-        newEvent.setRemote(data.remote());
-
+        Event newEvent = mapper.toEntity(data, imgUrl);
         repository.save(newEvent);
 
         if (!data.remote()) {
@@ -174,7 +171,6 @@ public class EventService {
                     .bucket(bucketName)
                     .key(filename)
                     .build();
-
             return s3Client.utilities().getUrl(request).toString();
         } catch (Exception e) {
             System.out.println("erro ao subir arquivo");
