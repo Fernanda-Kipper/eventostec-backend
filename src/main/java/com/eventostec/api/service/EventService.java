@@ -4,7 +4,8 @@ import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.*;
 import com.eventostec.api.repositories.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +18,15 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class EventService {
 
     @Value("${aws.bucket.name}")
@@ -29,20 +35,13 @@ public class EventService {
     @Value("${admin.key}")
     private String adminKey;
 
-    @Autowired
-    private S3Client s3Client;
-
-    @Autowired
-    private AddressService addressService;
-
-    @Autowired
-    private CouponService couponService;
-
-    @Autowired
-    private EventRepository repository;
+    private final S3Client s3Client;
+    private final AddressService addressService;
+    private final CouponService couponService;
+    private final EventRepository repository;
 
     public Event createEvent(EventRequestDTO data) {
-        String imgUrl = null;
+        String imgUrl = "";
 
         if (data.image() != null) {
             imgUrl = this.uploadImg(data.image());
@@ -58,7 +57,7 @@ public class EventService {
 
         repository.save(newEvent);
 
-        if (!data.remote()) {
+        if (Boolean.FALSE.equals(data.remote())) {
             this.addressService.createAddress(data, newEvent);
         }
 
@@ -109,7 +108,7 @@ public class EventService {
                 couponDTOs);
     }
 
-    public Void deleteEvent(UUID eventId, String adminKey){
+    public void deleteEvent(UUID eventId, String adminKey){
         if(adminKey == null || !adminKey.equals(this.adminKey)){
             throw new IllegalArgumentException("Invalid admin key");
         }
@@ -117,7 +116,6 @@ public class EventService {
         this.repository.delete(this.repository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Event not found")));
 
-        return null;
     }
 
     public List<EventResponseDTO> searchEvents(String title){
@@ -177,8 +175,7 @@ public class EventService {
 
             return s3Client.utilities().getUrl(request).toString();
         } catch (Exception e) {
-            System.out.println("erro ao subir arquivo");
-            System.out.println(e.getMessage());
+            log.error("erro ao subir arquivo: {}", e.getMessage());
             return "";
         }
     }
