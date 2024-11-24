@@ -1,11 +1,11 @@
 package com.eventostec.api.service;
 
 import com.eventostec.api.domain.coupon.Coupon;
-import com.eventostec.api.domain.event.Event;
 import com.eventostec.api.domain.coupon.CouponRequestDTO;
+import com.eventostec.api.domain.event.Event;
 import com.eventostec.api.repositories.CouponRepository;
 import com.eventostec.api.repositories.EventRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -13,13 +13,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CouponService {
 
-    @Autowired
-    private CouponRepository couponRepository;
-
-    @Autowired
-    private EventRepository eventRepository;
+    private final CouponRepository couponRepository;
+    private final EventRepository eventRepository;
 
     public Coupon addCouponToEvent(UUID eventId, CouponRequestDTO couponData) {
         Event event = eventRepository.findById(eventId)
