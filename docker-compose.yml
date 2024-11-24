@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: db-eventostec
+    volumes:
+      - data:/var/lib/postgresql/db
+    networks:
+      - eventostec-net
+    environment:
+      POSTGRES_DB: eventostec
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - '5432:5432'
+
+volumes:
+  data:
+    external: false
+networks:
+  eventostec-net:
+    driver: bridge
