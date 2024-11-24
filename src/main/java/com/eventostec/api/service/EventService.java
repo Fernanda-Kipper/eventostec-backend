@@ -3,6 +3,7 @@ package com.eventostec.api.service;
 import com.eventostec.api.domain.address.Address;
 import com.eventostec.api.domain.coupon.Coupon;
 import com.eventostec.api.domain.event.*;
+import com.eventostec.api.mappers.EventMapper;
 import com.eventostec.api.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +41,17 @@ public class EventService {
     private final CouponService couponService;
     private final EventRepository repository;
 
+    @Autowired
+    private EventMapper mapper;
+
     public Event createEvent(EventRequestDTO data) {
         String imgUrl = "";
+
 
         if (data.image() != null) {
             imgUrl = this.uploadImg(data.image());
         }
-
-        Event newEvent = new Event();
-        newEvent.setTitle(data.title());
-        newEvent.setDescription(data.description());
-        newEvent.setEventUrl(data.eventUrl());
-        newEvent.setDate(new Date(data.date()));
-        newEvent.setImgUrl(imgUrl);
-        newEvent.setRemote(data.remote());
-
+        Event newEvent = mapper.toEntity(data, imgUrl);
         repository.save(newEvent);
 
         if (Boolean.FALSE.equals(data.remote())) {
@@ -172,7 +169,6 @@ public class EventService {
                     .bucket(bucketName)
                     .key(filename)
                     .build();
-
             return s3Client.utilities().getUrl(request).toString();
         } catch (Exception e) {
             log.error("erro ao subir arquivo: {}", e.getMessage());
